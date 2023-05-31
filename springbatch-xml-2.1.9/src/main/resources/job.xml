@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch = "http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd">
+
+    <batch:job id="sampleJob">
+        <batch:step id="sampleStep">
+            <batch:tasklet>
+                <batch:chunk reader="sampleItemReader" writer="sampleItemWriter" commit-interval="2"/>
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+
+    <bean id="sampleItemReader" class="com.example.springbatch.xmlconfig.MyItemReader" scope="step" />
+    <bean id="sampleItemWriter" class="com.example.springbatch.xmlconfig.MyItemWriter" scope="step" />
+
+
+    <!-- springbatch基础组件  -->
+    <batch:job-repository id="jobRepository" data-source="dataSource" transaction-manager="transactionManager"
+                          isolation-level-for-create="SERIALIZABLE" />
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository" />
+    </bean>
+    <bean id="jobExplorer" class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+    <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+        <property name="jobExplorer" ref="jobExplorer" />
+         <property name="jobRepository" ref="jobRepository" />
+        <property name="jobRegistry" ref="jobRegistry" />
+        <property name="jobLauncher" ref="jobLauncher" />
+    </bean>
+
+</beans>
